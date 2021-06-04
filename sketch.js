@@ -1,75 +1,65 @@
-var mario;
-var platformGroup;
-var marioAnimation, obstacleAnimation, wallAnimation, groundAnimation;
+var helicopterIMG, helicopterSprite, packageSprite,packageIMG;
+var packageBody,ground
+const Engine = Matter.Engine;
+const World = Matter.World;
+const Bodies = Matter.Bodies;
+const Body = Matter.Body;
 
 function preload()
 {
-  marioAnimation=loadAnimation("images/Capture1.png","images/Capture4.png","images/Capture3.png");
-  obstacleAnimation=loadAnimation("images/obstacle1.png");
-  wallAnimation=loadAnimation("images/wall.png");
-  groundAnimation=loadAnimation("images/ground.png");  
+	helicopterIMG=loadImage("helicopter.png")
+	packageIMG=loadImage("package.png")
 }
 
 function setup() {
-  //Creating canvas equal to width and height of display
-  createCanvas(displayWidth,668);
-  var countDistanceX = 0;
-  var platform;
-  var gap;
+	createCanvas(800, 700);
+	rectMode(CENTER);
+	
+
+	packageSprite=createSprite(width/2, 80, 10,10);
+	packageSprite.addImage(packageIMG)
+	packageSprite.scale=0.2
+
+	helicopterSprite=createSprite(width/2, 200, 10,10);
+	helicopterSprite.addImage(helicopterIMG)
+	helicopterSprite.scale=0.6
+
+	groundSprite=createSprite(width/2, height-35, width,10);
+	groundSprite.shapeColor=color(255)
+
+
+	engine = Engine.create();
+	world = engine.world;
+
+	packageBody = Bodies.circle(width/2 , 200 , 5 , {restitution:.7, isStatic:true});
+	World.add(world, packageBody);
+	
+
+	//Create a Ground
+	ground = Bodies.rectangle(width/2, 650, width, 10 , {isStatic:true} );
+ 	World.add(world, ground);
+
+
+	Engine.run(engine);
   
-  //creating a player mario
-  mario = new Player();
-  
-  //creating a group
-  platformGroup= createGroup();
-
-  //adding platforms to stand for mario
-  for (var i=0;i<24;i++)
-	 {
-      platform = new Platform(countDistanceX);
-      platformGroup.add(platform.spt);//Adding each new platform to platformGroup
-      gap=random([0,0,0,0,200]);//givin randome value to gap
-      countDistanceX = countDistanceX + platform.spt.width + gap; //counting x location of next platform to be build
-   
-      //adding wall to the game
-      if (i%3===0){
-        wall=new Wall(countDistanceX);
-        platformGroup.add(wall.spt)
-      }
-
-      //adding obstacles to the game
-      if (i%4===0){
-        obstacle=new Obstacle(countDistanceX); 
-      }
-  }
-
 }
 
+
 function draw() {
-  background('skyblue');
+  rectMode(CENTER);
+  background(0);
+  packageSprite.x= packageBody.position.x 
+  packageSprite.y= packageBody.position.y 
+  drawSprites();
+ 
+}
 
-  //code to move the camera
-  translate(  -mario.spt.x + width/2 , 0);
-  
-  //apply gravity to mario and set colliding with platforms
-  mario.applyGravity();
-  mario.spt.collide(platformGroup);
-
-  //Calling various function to controll mario
-  if (keyDown("left"))  
-  { 
-    mario.moveLeft();
-  }
-  if (keyDown("right")) 
-  { 
+function keyPressed() {
+ if (keyCode === DOWN_ARROW) {
+    // Look at the hints in the document and understand how to make the package body fall only on press of the Down arrow key.
+Matter.Body.setStatic(packageBody,false)
     
-    mario.moveRight();
   }
-  if (keyDown("up")) 
-  { 
-    mario.jump();
-  }
-   drawSprites();
 }
 
 
